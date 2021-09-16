@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+resolveDockerHost() {
+    NON_LINUX_HOST=host.docker.internal
+
+    if ping -c 1 $NON_LINUX_HOST &> /dev/null; then
+        DOCKER_HOST=$NON_LINUX_HOST
+    else
+        DOCKER_HOST=$(/sbin/ip route | awk '/default/ { print $3 }')
+    fi
+
+    echo ${DOCKER_HOST}
+}
+
+sam local start-api --host 0.0.0.0 --container-host $(resolveDockerHost) ${@}
